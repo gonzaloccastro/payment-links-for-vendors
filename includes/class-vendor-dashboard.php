@@ -45,8 +45,12 @@ class PLFV_Vendor_Dashboard {
             [ $this, 'render_form' ]
         );
 
-        // Hide the edit page from the menu — it's only accessed via direct link
-        remove_submenu_page( 'plfv-dashboard', 'plfv-edit' );
+        // Hide the edit page from the menu visually — it's only accessed via direct link.
+        // We cannot use remove_submenu_page() here because WordPress would also
+        // deregister the page, causing a 403 when accessing it directly by URL.
+        add_action( 'admin_head', function() {
+            echo '<style>a[href="admin.php?page=plfv-edit"]{display:none!important}</style>';
+        } );
     }
 
     public function restrict_admin_access() {
@@ -126,17 +130,11 @@ class PLFV_Vendor_Dashboard {
             'dashUrl'        => admin_url( 'admin.php?page=plfv-dashboard' ),
             'currencyLabel'  => PLFV_Settings::get_currency_label(),
             'i18n'           => [
-                'copied'          => __( 'Link copied!', 'plfv' ),
-                'copyFailed'      => __( 'Copy failed. Please copy manually.', 'plfv' ),
-                'saving'          => __( 'Saving...', 'plfv' ),
-                'selectImage'     => __( 'Select Image', 'plfv' ),
-                'useImage'        => __( 'Use This Image', 'plfv' ),
-                'saveChanges'     => __( 'Save Changes', 'plfv' ),
-                'generateLink'    => __( 'Generate Payment Link', 'plfv' ),
-                'updatedNotice'   => __( 'Payment link updated successfully.', 'plfv' ),
-                'errorPrice'      => __( 'Please enter a valid price.', 'plfv' ),
-                'errorDesc'       => __( 'Please enter a description.', 'plfv' ),
-                'errorServer'     => __( 'Server error. Please try again.', 'plfv' ),
+                'copied'       => __( 'Link copied!', 'plfv' ),
+                'copyFailed'   => __( 'Copy failed. Please copy manually.', 'plfv' ),
+                'saving'       => __( 'Saving...', 'plfv' ),
+                'selectImage'  => __( 'Select Image', 'plfv' ),
+                'useImage'     => __( 'Use This Image', 'plfv' ),
             ],
         ] );
     }
@@ -155,8 +153,7 @@ class PLFV_Vendor_Dashboard {
                     'value' => '1',
                 ],
             ],
-            'fields'         => 'ids',
-            'no_found_rows'  => true, // Skip SQL_CALC_FOUND_ROWS — we don't need pagination here
+            'fields' => 'ids',
         ] );
 
         $products = array_filter(
